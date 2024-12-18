@@ -1,0 +1,39 @@
+spring:
+  main:
+    banner-mode: 'off'
+  data:
+    mongodb:
+      database: identity
+      uri: "mongodb://localhost:27017"
+      collection: tokens
+lock:
+  lockAtMost: 30s
+  lockAtLeast: 0s
+  maxRetries: 5
+  pollBackoff: 5s
+feign:
+  max-retries: 5
+  max-backoff: 100ms
+  min-backoff: 100ms
+logging:
+  level:
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.apache.http: INFO
+    httpclient.wire: INFO
+    org.apache.http.client.protocol.ResponseProcessCookies: ERROR
+    it.hype: INFO
+centrico:
+  sso:
+    url: "https://10.165.255.224"
+    secret:
+      value: test
+    access-token:
+      channel-id: "HYPE_CUSTOMERS_MOBILE"
+      device-id: "HYPE_CUSTOMERS_MOBILE"
+server:
+  port: 8080
+  servlet:
+    context-path: /internal/identity/centrico-token-manager
+jwt:
+  secret: "test"

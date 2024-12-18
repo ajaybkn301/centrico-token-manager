@@ -1,0 +1,93 @@
+openapi: 3.0.0
+info:
+  title: Centrico Token Manager
+  version: 0.0.1
+  description:
+    Hype API layer to get user correlationId.
+  contact:
+    email: devauthentication@hype.it
+    name: API support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: http://localhost:8080/internal/identity/centrico-token-manager
+    description: Local environment server
+  - url: https://api.dev.hype.it/internal/identity/centrico-token-manager
+    description: Test environment server
+  - url: https://api.stg.hype.it/internal/identity/centrico-token-manager
+    description: Pre Production environment server
+  - url: https://api.hype.it/internal/identity/centrico-token-manager
+    description: Production environment server
+paths:
+  /v1/sso/getToken:
+    post:
+      tags:
+        - Retrieve SSO token from centrico
+      summary: Get the SSO token for a given user
+      operationId: getSsoToken
+      parameters:
+        - name: auth-token
+          in: header
+          description: Identifies the caller and gives its information
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/GetTokenResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  responses:
+    GetTokenResponse:
+      description: Returns the sso token required by the user
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GetTokenResponse'
+    Unauthorized:
+      description: Unauthorized
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            timestamp: 1653575117421
+            uri: /centrico/token/manager/v1/sso/getToken
+            errorCode: CTM002
+            errorMessage: Internal Server Error
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - timestamp
+        - uri
+        - errorCode
+        - errorMessage
+      properties:
+        timestamp:
+          type: integer
+          format: int64
+        uri:
+          type: string
+        errorCode:
+          type: string
+        errorMessage:
+          type: string
+      example:
+        timestamp: 1653575117421
+        uri: /identity/credential/v1/auth
+        errorCode: SLOG003
+        errorMessage: Internal Server Error
+    GetTokenResponse:
+      properties:
+        token:
+          type: string
+          description: 'SSO token'
+      example:
+        mainMailAlias: 'asda80123n1oas083e12j0x-12j09xaj0-12j308adjs0d'

@@ -1,0 +1,87 @@
+trigger:
+  - master
+
+parameters:
+  - name: forRelease
+    type: boolean
+    default: true
+  - name: useSonar
+    type: boolean
+    default: true
+  - name: jiraAsset
+    displayName: 'Jira Asset'
+    type: string
+    default: 'HYPE Backend - Cloud'
+  - name: jiraApplication
+    displayName: 'Jira Asset'
+    type: string
+    default: 'HYPE (Light Banking)'
+
+variables:
+  - name: imageName
+    value: 'centrico-token-manager'
+  - group: 'Container Registry'
+  - group: 'Endpoints'
+  - group: 'Service Connections'
+  - name: openTelemetryExtensionVersion
+    value: "0.0.1"
+  - name: jdkVersion
+    value: '1.17'
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: HypeCloudInfra/HypePipelineTemplate
+      ref: master
+
+extends:
+  template: processes/generic.yaml@templates
+  parameters:
+    build: /build/java-k8s.yaml
+    release: /release/k8s-apply.yaml
+    qa: /qa/java.yaml
+    forRelease: ${{ parameters.forRelease }}
+    useSonar: ${{ parameters.useSonar }}
+    jiraAsset: ${{ parameters.jiraAsset }}
+    jiraApplication: ${{ parameters.jiraApplication }}
+    version:
+      build: $(setVersion.version)
+      release: $[ stageDependencies.Build.BuildJava.outputs['setVersion.version'] ]
+    dev:
+      variables:
+      - name: 'weKubernetesServiceEndpoint'
+        value: '$(sc.dv.auth.aks.1)'
+      group:
+        - 'Endpoints DEV'
+        - 'k8s DEV'
+        - 'KeyVault DEV'
+        - 'Logging DEV'
+      template:
+        - /ci-cd/dev.yaml@self
+    stg:
+      variables:
+      - name: 'weKubernetesServiceEndpoint'
+        value: '$(sc.st.auth.aks.1)'
+      - name: 'neKubernetesServiceEndpoint'
+        value: '$(sc.st.auth.aks.2)'
+      group:
+        - 'Endpoints STG'
+        - 'k8s STG'
+        - 'KeyVault STG'
+        - 'Logging STG'
+      template:
+        - /ci-cd/stg.yaml@self
+    prod:
+      variables:
+      - name: 'weKubernetesServiceEndpoint'
+        value: '$(sc.pr.auth.aks.1)'
+      - name: 'neKubernetesServiceEndpoint'
+        value: '$(sc.pr.auth.aks.2)'
+      group:
+        - 'Endpoints PROD'
+        - 'k8s PROD'
+        - 'KeyVault PROD'
+        - 'Logging PROD'
+      template:
+        - /ci-cd/prod.yaml@self

@@ -1,0 +1,21 @@
+apiVersion: #{ingress.version}#
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+  name: ingress-centrico-token-manager
+  namespace: identity
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /identity/centrico-token-manager(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: centrico-token-manager
+                port:
+                  number: 8080

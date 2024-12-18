@@ -1,0 +1,52 @@
+apiVersion: #{configmap.version}#
+kind: ConfigMap
+data:
+  application.yaml: |-
+    spring:
+      main:
+        banner-mode: "off"
+      data:
+        mongodb:
+          database: identity
+          collection: tokens
+          uri: "${MONGO_CS}"
+    lock:
+      lockAtMost: 5s
+      lockAtLeast: 0s
+      maxRetries: 5
+      pollBackoff: 500ms
+    feign:
+      max-retries: 5
+      max-backoff: 250ms
+      min-backoff: 50ms
+    app:
+      local: false
+      whitelist: "/swagger-resources/**, /api-docs/**"
+      auth:
+        verifyToken: false
+    centrico:
+      sso:
+        url: "#{apim.centrico.sso.url}#"
+        secret:
+          value: "${CENTRICO_SECRET}"
+        access-token:
+          channel-id: HYPE_CUSTOMERS_MOBILE
+          device-id: HYPE_CUSTOMERS_MOBILE
+      legacyrest:
+        url: "#{centrico.webservice.url}#"
+    identity-token-manager:
+      services:
+        url: "#{identity-token-manager.webservices.url}#"
+        api:
+          validate-token: /v1/token/validate
+    logging:
+      level:
+        org.springframework.web: INFO
+        org.springframework.security: INFO
+        org.apache.http: INFO
+        httpclient.wire: INFO
+        org.apache.http.client.protocol.ResponseProcessCookies: ERROR
+        it.hype: INFO
+metadata:
+  name: configmap-centrico-token-manager
+  namespace: identity

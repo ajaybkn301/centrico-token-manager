@@ -1,0 +1,24 @@
+trigger:
+  - none
+
+parameters:
+  - name: useSonar
+    type: boolean
+    default: true
+variables:
+  - group: 'Service Connections'
+
+resources:
+  repositories:
+  - repository: templates
+    type: git
+    name: HypeCloudInfra/HypePipelineTemplate
+    ref: master
+
+extends:
+  template: processes/generic.yaml@templates
+  parameters:
+    qa: /qa/java.yaml
+    useSonar: ${{ parameters.useSonar }}
+    version:
+      build: $(Build.BuildId)
