@@ -20,7 +20,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 
     @Value("${jwt.secret}")
     private String secretKey;
-
+    // Ajay
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
